@@ -39,3 +39,5 @@ _ReSharper*/
 *.ts
 *libEasyHLS/
 *.m3u8
+*.filters
+EasyDarwin.sln*
