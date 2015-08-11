@@ -46,3 +46,4 @@ CMS.opensdf
 /EasyDarwin/dist/
 /CommonUtilitiesLib/build/
 Movies*/
+*.opensdf
