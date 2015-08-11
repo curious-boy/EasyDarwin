@@ -7,15 +7,14 @@
 #ifndef _Easy_NVS_API_H
 #define _Easy_NVS_API_H
 
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-
 #ifdef _WIN32
 #define EasyNVS_API  __declspec(dllexport)
 #define Easy_APICALL  __stdcall
+#define WIN32_LEAN_AND_MEAN
 #else
 #define EasyNVS_API
 #define Easy_APICALL 
+#define CALLBACK
 #endif
 
 #define Easy_NVS_Handle void*
@@ -55,7 +54,7 @@ typedef enum __RTP_CONNECT_TYPE
 
 /* 帧类型 */
 #ifndef FRAMETYPE_I
-#define FRAMETYPE_I		0x01
+#define FRAMETYPE_I		0x01	/*sps:0x67 pps:0x68 I:0x65的组合*/
 #endif
 #ifndef FRAMETYPE_P
 #define FRAMETYPE_P		0x02
@@ -70,8 +69,8 @@ typedef struct
 	unsigned int	codec;			//编码格式
 	unsigned char	type;			//帧类型
 	unsigned char	fps;			//帧率
-	unsigned char	reserved1;
-	unsigned char	reserved2;
+	unsigned int	reserved1;
+	unsigned int	reserved2;
 
 	unsigned short	width;			//宽
 	unsigned short  height;			//高
@@ -90,7 +89,7 @@ typedef struct
 _mediatype:		MEDIA_TYPE_VIDEO	MEDIA_TYPE_AUDIO	MEDIA_TYPE_EVENT	
 如果在EasyNVS_OpenStream中的参数outRtpPacket置为1, 则回调中的_mediatype为MEDIA_TYPE_RTP, pbuf为接收到的RTP包(包含rtp头信息), frameinfo->length为包长
 */
-typedef int (CALLBACK *NVSourceCallBack)( int _chid, int *_chPtr, int _mediatype, char *pbuf, NVS_FRAME_INFO *frameinfo);
+typedef int (Easy_APICALL *NVSourceCallBack)( int _chid, int *_chPtr, int _mediatype, char *pbuf, NVS_FRAME_INFO *frameinfo);
 
 extern "C"
 {

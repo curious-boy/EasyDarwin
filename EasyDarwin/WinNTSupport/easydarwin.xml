@@ -249,9 +249,6 @@
 	</MODULE>
 	<MODULE NAME="QTSSErrorLogModule" ></MODULE>
 	<MODULE NAME="QTSSPosixFileSysModule" ></MODULE>
-	<MODULE NAME="QTSSOnDemandRelayModule" >
-		<PREF NAME="device_prefs_file" >./devices.xml</PREF>
-	</MODULE>
 	<MODULE NAME="EasyHLSModule" >
 		<PREF NAME="LOCAL_ROOT_DIR" >./HLS/</PREF>
 		<PREF NAME="HTTP_ROOT_DIR" >http://hls.easydarwin.org/</PREF>
@@ -260,5 +257,7 @@
 		<PREF NAME="TARGET_DURATION" TYPE="UInt32" >4</PREF>
 		<PREF NAME="PLAYLIST_CAPACITY" TYPE="UInt32" >4</PREF>
 	</MODULE>
-	<MODULE NAME="EasyRelayModule" ></MODULE>
+	<MODULE NAME="EasyRelayModule" >
+		<PREF NAME="local_ip_address" >127.0.0.1</PREF>
+	</MODULE>
 </CONFIGURATION>

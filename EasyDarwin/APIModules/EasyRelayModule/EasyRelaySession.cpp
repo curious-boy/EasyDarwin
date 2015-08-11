@@ -8,8 +8,9 @@
     File:       EasyRelaySession.cpp
     Contains:   RTSP Relay Client
 */
+#include "QTSServerInterface.h"
 #include "EasyRelaySession.h"
-#include <stdlib.h>
+
 
 /* NVSource从RTSPClient获取数据后回调给上层 */
 int CALLBACK __EasyNVSourceCallBack( int _chid, int *_chPtr, int _mediatype, char *pbuf, NVS_FRAME_INFO *frameinfo)
@@ -63,8 +64,10 @@ EasyRelaySession::EasyRelaySession(char* inURL, ClientType inClientType, const c
 		fStreamName.Ptr = NEW char[strlen(streamName) + 1];
 		::memset(fStreamName.Ptr,0,strlen(streamName) + 1);
 		::memcpy(fStreamName.Ptr, streamName, strlen(streamName));
-		fStreamName.Ptr[fStreamName.Len] = '\0';
+
 		fStreamName.Len = strlen(streamName);
+		fStreamName.Ptr[fStreamName.Len] = '\0';
+
 		fRef.Set(fStreamName, this);
     }
 
@@ -74,6 +77,8 @@ EasyRelaySession::EasyRelaySession(char* inURL, ClientType inClientType, const c
 EasyRelaySession::~EasyRelaySession()
 {
 	qtss_printf("\nDisconnect %s:%s\n",fStreamName.Ptr,fURL);
+
+	this->RelaySessionRelease();
 
 	delete [] fStreamName.Ptr;
 	delete [] fURL;
@@ -99,6 +104,8 @@ QTSS_Error EasyRelaySession::ProcessData(int _chid, int mediatype, char *pbuf, N
 	if(NULL == fPusherHandle) return QTSS_Unimplemented;
 	if (mediatype == MEDIA_TYPE_VIDEO)
 	{
+		printf("Get video Len:%d tm:%d rtp:%d\n", frameinfo->length, frameinfo->timestamp_sec, frameinfo->rtptimestamp);
+
 		if(frameinfo && frameinfo->length)
 		{
 				EASY_AV_Frame  avFrame;
@@ -132,7 +139,7 @@ QTSS_Error EasyRelaySession::ProcessData(int _chid, int mediatype, char *pbuf, N
 /*
 	创建HLS直播Session
 */
-QTSS_Error	EasyRelaySession::HLSSessionStart()
+QTSS_Error	EasyRelaySession::RelaySessionStart()
 {
 	if(NULL == fNVSHandle)
 	{
@@ -158,13 +165,22 @@ QTSS_Error	EasyRelaySession::HLSSessionStart()
 
 		EasyPusher_SetEventCallback(fPusherHandle, __EasyPusher_Callback, 0, NULL);
 
-		EasyPusher_StartStream(fPusherHandle, "127.0.0.1", 554, "live.sdp", "", "", &mediainfo, 512);
+		// Get the ip addr out of the prefs dictionary
+		UInt16 thePort = 554;
+		UInt32 theLen = sizeof(UInt16);
+		QTSS_Error theErr = QTSServerInterface::GetServer()->GetPrefs()->GetValue(qtssPrefsRTSPPorts, 0, &thePort, &theLen);
+		Assert(theErr == QTSS_NoErr);
+
+		char sdpName[QTSS_MAX_URL_LENGTH] = { 0 };
+		sprintf(sdpName, "%s.sdp", fStreamName.Ptr);
+
+		EasyPusher_StartStream(fPusherHandle, "127.0.0.1", thePort, sdpName, "", "", &mediainfo, 512);
 	}
 
 	return QTSS_NoErr;
 }
 
-QTSS_Error	EasyRelaySession::HLSSessionRelease()
+QTSS_Error	EasyRelaySession::RelaySessionRelease()
 {
 	qtss_printf("HLSSession Release....\n");
 	

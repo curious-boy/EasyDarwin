@@ -42,3 +42,7 @@ _ReSharper*/
 *.filters
 EasyDarwin.sln*
 CMS.opensdf
+/EasyDarwin/build/
+/EasyDarwin/dist/
+/CommonUtilitiesLib/build/
+Movies*/

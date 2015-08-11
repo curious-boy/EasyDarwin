@@ -5,17 +5,18 @@
 	Website: http://www.easydarwin.org
 */
 /*
-    File:       QTSSOnDemandRelayModule.cpp
+    File:       EasyRelayModule.cpp
     Contains:   RTSP On Demand Relay Module
 */
+
+#include "QTSServerInterface.h"
 #include "EasyRelayModule.h"
 #include "QTSSModuleUtils.h"
-#include "ReflectorSession.h"
 #include "OSArrayObjectDeleter.h"
 #include "QTSSMemoryDeleter.h"
+#include "QueryParamList.h"
 #include "OSRef.h"
 #include "StringParser.h"
-#include "QueryParamList.h"
 #include "EasyRelaySession.h"
 
 #ifndef __Win32__
@@ -30,6 +31,15 @@ static QTSS_ServerObject sServer = NULL;
 static QTSS_ModulePrefsObject       sPrefs = NULL;
 
 static StrPtrLen    sRelaySuffix("EasyRelayModule");
+
+static char*            sLocal_IP_Addr = NULL;
+static char*            sDefaultLocal_IP_Addr = "127.0.0.1";
+
+#define QUERY_STREAM_NAME	"name"
+#define QUERY_STREAM_URL	"url"
+#define QUERY_STREAM_CMD	"cmd"
+#define QUERY_STREAM_CMD_START "start"
+#define QUERY_STREAM_CMD_STOP "stop"
 
 // FUNCTION PROTOTYPES
 static QTSS_Error EasyRelayModuleDispatch(QTSS_Role inRole, QTSS_RoleParamPtr inParams);
@@ -71,7 +81,7 @@ QTSS_Error Register(QTSS_Register_Params* inParams)
     (void)QTSS_AddRole(QTSS_RereadPrefs_Role);    
     
     // Tell the server our name!
-    static char* sModuleName = "QTSSOnDemandRelayModule";
+    static char* sModuleName = "EasyRelayModule";
     ::strcpy(inParams->outModuleName, sModuleName);
 
     return QTSS_NoErr;
@@ -98,11 +108,15 @@ QTSS_Error Initialize(QTSS_Initialize_Params* inParams)
 
 QTSS_Error RereadPrefs()
 {
+	delete [] sLocal_IP_Addr;
+    sLocal_IP_Addr = QTSSModuleUtils::GetStringAttribute(sPrefs, "local_ip_address", sDefaultLocal_IP_Addr);
+
 	return QTSS_NoErr;
 }
 
 QTSS_Error ProcessRTSPRequest(QTSS_StandardRTSP_Params* inParams)
 {
+	OSMutexLocker locker (sRelaySessionMap->GetMutex());
     QTSS_RTSPMethod* theMethod = NULL;
 
 	UInt32 theLen = 0;
@@ -120,8 +134,9 @@ QTSS_Error ProcessRTSPRequest(QTSS_StandardRTSP_Params* inParams)
 }
 QTSS_Error DoDescribe(QTSS_StandardRTSP_Params* inParams)
 {
+	//解析命令
     char* theFullPathStr = NULL;
-    QTSS_Error theErr = QTSS_GetValueAsString(inParams->inRTSPRequest, qtssRTSPReqLocalPath, 0, &theFullPathStr);
+    QTSS_Error theErr = QTSS_GetValueAsString(inParams->inRTSPRequest, qtssRTSPReqFileName, 0, &theFullPathStr);
     Assert(theErr == QTSS_NoErr);
     QTSSCharArrayDeleter theFullPathStrDeleter(theFullPathStr);
         
@@ -130,20 +145,47 @@ QTSS_Error DoDescribe(QTSS_StandardRTSP_Params* inParams)
 
     StrPtrLen theFullPath(theFullPathStr);
 
-    if (theFullPath.Len > sRelaySuffix.Len )
+    if (theFullPath.Len != sRelaySuffix.Len )
+	return NULL;
+
+	StrPtrLen endOfPath2(&theFullPath.Ptr[theFullPath.Len -  sRelaySuffix.Len], sRelaySuffix.Len);
+    if (!endOfPath2.Equal(sRelaySuffix))
     {   
-		StrPtrLen endOfPath2(&theFullPath.Ptr[theFullPath.Len -  sRelaySuffix.Len], sRelaySuffix.Len);
-        if (!endOfPath2.Equal(sRelaySuffix))
-        {   
-            return NULL;
-        }
+        return NULL;
     }
 
+	//解析查询字符串
+    char* theQueryStr = NULL;
+    theErr = QTSS_GetValueAsString(inParams->inRTSPRequest, qtssRTSPReqQueryString, 0, &theQueryStr);
+    Assert(theErr == QTSS_NoErr);
+    QTSSCharArrayDeleter theQueryStringDeleter(theQueryStr);
+        
+    if (theErr != QTSS_NoErr)
+        return NULL;
 
+    StrPtrLen theQueryString(theQueryStr);
+
+	QueryParamList parList(theQueryStr);
+
+	const char* sName = parList.DoFindCGIValueForParam(QUERY_STREAM_NAME);
+	if(sName == NULL) return NULL;
+
+	const char* sURL = parList.DoFindCGIValueForParam(QUERY_STREAM_URL);
+	//if(sURL == NULL) return NULL;
+
+	const char* sCMD = parList.DoFindCGIValueForParam(QUERY_STREAM_CMD);
+
+	bool bStop = false;
+	if(sCMD)
+	{
+		if(::strcmp(sCMD,QUERY_STREAM_CMD_STOP) == 0)
+			bStop = true;
+	}
+
+	StrPtrLen streamName((char*)sName);
 	//从接口获取信息结构体
 	EasyRelaySession* session = NULL;
 	//首先查找Map里面是否已经有了对应的流
-	StrPtrLen streamName("live");
 	OSRef* sessionRef = sRelaySessionMap->Resolve(&streamName);
 	if(sessionRef != NULL)
 	{
@@ -151,10 +193,13 @@ QTSS_Error DoDescribe(QTSS_StandardRTSP_Params* inParams)
 	}
 	else
 	{
-		session = NEW EasyRelaySession("rtsp://admin:admin@192.168.1.106/", EasyRelaySession::kRTSPTCPClientType, "live");
+		if(bStop) return NULL;
 
+		if(sURL == NULL) return NULL;
 
-		QTSS_Error theErr = session->HLSSessionStart();
+		session = NEW EasyRelaySession((char*)sURL, EasyRelaySession::kRTSPTCPClientType, (char*)sName);
+
+		QTSS_Error theErr = session->RelaySessionStart();
 
 		if(theErr == QTSS_NoErr)
 		{
@@ -172,5 +217,32 @@ QTSS_Error DoDescribe(QTSS_StandardRTSP_Params* inParams)
 		Assert(debug == session->GetRef());
 	}
 
-    return QTSS_NoErr;
+	sRelaySessionMap->Release(session->GetRef());
+
+	if(bStop)
+	{
+		sRelaySessionMap->UnRegister(session->GetRef());
+		session->Signal(Task::kKillEvent);
+		return QTSSModuleUtils::SendErrorResponse(inParams->inRTSPRequest, qtssSuccessOK, 0); 
+	}
+
+	QTSS_RTSPStatusCode statusCode = qtssRedirectPermMoved;
+	QTSS_SetValue(inParams->inRTSPRequest, qtssRTSPReqStatusCode, 0, &statusCode, sizeof(statusCode));
+
+	// Get the ip addr out of the prefs dictionary
+	UInt16 thePort = 554;
+	UInt32 theLen = sizeof(UInt16);
+	theErr = QTSServerInterface::GetServer()->GetPrefs()->GetValue(qtssPrefsRTSPPorts, 0, &thePort, &theLen);
+	Assert(theErr == QTSS_NoErr);   
+
+	//构造本地URL
+	char url[QTSS_MAX_URL_LENGTH] = { 0 };
+
+	qtss_sprintf(url,"rtsp://%s:%d/%s.sdp", sLocal_IP_Addr, thePort, sName);
+	StrPtrLen locationRedirect(url);
+
+	Bool16 sFalse = false;
+	(void)QTSS_SetValue(inParams->inRTSPRequest, qtssRTSPReqRespKeepAlive, 0, &sFalse, sizeof(sFalse));
+	QTSS_AppendRTSPHeader(inParams->inRTSPRequest, qtssLocationHeader, locationRedirect.Ptr, locationRedirect.Len);	
+	return QTSSModuleUtils::SendErrorResponse(inParams->inRTSPRequest, qtssRedirectPermMoved, 0);
 }
