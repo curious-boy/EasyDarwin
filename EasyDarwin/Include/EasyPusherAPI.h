@@ -7,10 +7,6 @@
 #ifndef __EasyPusher_H__
 #define __EasyPusher_H__
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #ifdef _WIN32
 #define EasyPusher_API  __declspec(dllexport)
 #define Easy_APICALL  __stdcall
@@ -68,7 +64,7 @@ typedef int Easy_Error;
 
 /* 视频关键字标识 */
 #define EASY_SDK_VIDEO_FRAME_I		0x03000001	/* 关键帧 */
-#define EASY_SDK_VIDEO_FRAME_P		0x03000001	/* 非关键帧 */
+#define EASY_SDK_VIDEO_FRAME_P		0x03000002	/* 非关键帧 */
 
 typedef struct __EASY_AV_Frame
 {
@@ -129,15 +125,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-
-
-
-
-
-
-
-
-
 
 
 #endif

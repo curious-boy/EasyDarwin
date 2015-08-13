@@ -11,16 +11,10 @@
 #ifndef __EASY_RELAY_SESSION__
 #define __EASY_RELAY_SESSION__
 
-
-#define __SOCKET_H__
-
 #include "Task.h"
 #include "TimeoutTask.h"
-
-#include <stdio.h>
 #include "QTSSModuleUtils.h"
 #include "MyAssert.h"
-
 #include "OSMutex.h"
 #include "MyAssert.h"
 #include "OSMemory.h"
@@ -29,8 +23,9 @@
 #include "StringTranslator.h"
 #include "StrPtrLen.h"
 #include "OSRef.h"
-#include "EasyNVSourceAPI.h"
+#include "EasyRTSPClientAPI.h"
 #include "EasyPusherAPI.h"
+#include "QTSServerInterface.h"
 
 class EasyRelaySession : public Task
 {
@@ -51,7 +46,7 @@ class EasyRelaySession : public Task
 		OSRef*			GetRef()    		{ return &fRef; } 
 		OSMutex*		GetMutex()						{ return &fMutex; }
 
-		QTSS_Error		ProcessData(int _chid, int mediatype, char *pbuf, NVS_FRAME_INFO *frameinfo);
+		QTSS_Error		ProcessData(int _chid, int mediatype, char *pbuf, RTSP_FRAME_INFO *frameinfo);
 		QTSS_Error		RelaySessionStart();
 		QTSS_Error		RelaySessionRelease();
   
@@ -61,8 +56,8 @@ class EasyRelaySession : public Task
 		char*			fURL;
 		OSMutex			fMutex;
 
-		//NVSource Handle
-		Easy_NVS_Handle	fNVSHandle;
+		//RTSPClient Handle
+		Easy_RTSP_Handle	fRTSPClientHandle;
 		//HLS Handle
 		Easy_Pusher_Handle fPusherHandle;
 };
