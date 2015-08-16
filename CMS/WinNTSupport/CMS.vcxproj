@@ -158,11 +158,6 @@
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\EasyDSSProtocol\libavsxmlutil\libavsxmlutil.vcxproj">
-      <Project>{9a0f3aa4-5e2e-406a-bac1-c0f26b5d3eb2}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\..\SafeStdLib\SafeInternalStdLib.vcxproj">
       <Project>{230d5525-aea7-4037-95fe-3b45bef98e55}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>

@@ -428,6 +428,9 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="QueryParamList.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

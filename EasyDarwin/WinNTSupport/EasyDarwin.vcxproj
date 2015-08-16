@@ -78,7 +78,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;wsock32.lib;winmm.lib;libEasyNVSource.lib;libEasyHLS.lib;libEasyPusher.lib;libEasyRTSPClient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wsock32.lib;winmm.lib;libEasyRTSPClient.lib;libEasyHLS.lib;libEasyPusher.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\WinNTSupport\Debug\EasyDarwin.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\Lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -122,7 +122,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;wsock32.lib;winmm.lib;libEasyHLS.lib;libEasyNVSource.lib;libEasyPusher.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wsock32.lib;winmm.lib;libEasyHLS.lib;libEasyRTSPClient.lib;libEasyPusher.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\WinNTSupport\Release\EasyDarwin.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\Lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -681,6 +681,8 @@
     <ClInclude Include="..\Include\EasyHLSAPI.h" />
     <ClInclude Include="..\APIModules\EasyHLSModule\EasyHLSModule.h" />
     <ClInclude Include="..\APIModules\EasyHLSModule\EasyHLSSession.h" />
+    <ClInclude Include="..\Include\EasyRTSPClientAPI.h" />
+    <ClInclude Include="..\Include\EasyPusherAPI.h" />
     <ClInclude Include="..\APIModules\EasyRelayModule\EasyRelayModule.h" />
     <ClInclude Include="..\APIModules\EasyRelayModule\EasyRelaySession.h" />
   </ItemGroup>
