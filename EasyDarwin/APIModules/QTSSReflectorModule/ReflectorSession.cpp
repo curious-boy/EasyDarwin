@@ -102,7 +102,8 @@ ReflectorSession::ReflectorSession(StrPtrLen* inSourceID, SourceInfo* inInfo)
     fInitTimeMS(OS::Milliseconds()),
     fHasBufferedStreams(false),
 	fRTSPRelaySession(NULL),
-	fSessionName(NULL)
+	fSessionName(NULL),
+	fHLSLive(false)
 {
 
     fQueueElem.SetEnclosingObject(this);
@@ -171,7 +172,16 @@ QTSS_Error ReflectorSession::SetSessionName()
 		QTSServerInterface::GetServer()->GetPrefs()->GetMovieFolder(&movieFolder[0], &pathLen);
 		StringParser parser(&fSourceID);
 		StrPtrLen strName;
-		parser.ConsumeLength(NULL,pathLen+1);
+
+		UInt32 thePathLen = 0;
+
+#ifdef __Win32__
+	thePathLen = pathLen+1;
+#else
+	thePathLen = pathLen;
+#endif
+
+		parser.ConsumeLength(NULL,thePathLen);
 		parser.ConsumeWord(&strName);
 		fSessionName = NEW char[strName.Len + 1];
 		::memcpy(fSessionName, strName.Ptr, strName.Len);
@@ -183,12 +193,41 @@ QTSS_Error ReflectorSession::SetSessionName()
 
 QTSS_Error ReflectorSession::StartHLSSession()
 {
-	return Easy_StartHLSSession(fSessionName);
+	QTSS_Error theErr = QTSS_NoErr;
+
+	if(!fHLSLive) 
+	{
+		// Get the ip addr out of the prefs dictionary
+		UInt16 thePort = 554;
+		UInt32 theLen = sizeof(UInt16);
+		QTSS_Error theErr = QTSS_NoErr;
+		theErr = QTSServerInterface::GetServer()->GetPrefs()->GetValue(qtssPrefsRTSPPorts, 0, &thePort, &theLen);
+		Assert(theErr == QTSS_NoErr);   
+
+		//构造本地URL
+		char url[QTSS_MAX_URL_LENGTH] = { 0 };
+		qtss_sprintf(url,"rtsp://127.0.0.1:%d/%s.sdp", thePort, fSessionName);
+
+		theErr = Easy_StartHLSSession(fSessionName, url);
+		if(QTSS_NoErr == theErr)
+			fHLSLive = true;
+	}
+
+	return theErr;
 }
 
 QTSS_Error ReflectorSession::StopHLSSession()
 {
-	return Easy_StopHLSSession(fSessionName);;
+	QTSS_Error theErr = QTSS_NoErr;
+
+	if(fHLSLive) 
+	{
+		theErr = Easy_StopHLSSession(fSessionName);
+		if(QTSS_NoErr == theErr)
+			fHLSLive = false;
+	}
+
+	return theErr;
 }
 
 
