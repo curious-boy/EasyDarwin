@@ -116,20 +116,18 @@ SInt64 EasyHLSSession::Run()
 QTSS_Error EasyHLSSession::ProcessData(int _chid, int mediatype, char *pbuf, RTSP_FRAME_INFO *frameinfo)
 {
 	if(NULL == fHLSHandle) return QTSS_Unimplemented;
-	if (mediatype == MEDIA_TYPE_VIDEO)
+	if (mediatype == EASY_SDK_VIDEO_FRAME_FLAG)
 	{
-		printf("Get %s Video Len:%d tm:%d rtp:%d\n",frameinfo->type==FRAMETYPE_I?"I":"P", frameinfo->length, frameinfo->timestamp_sec, frameinfo->rtptimestamp);
+		unsigned long long llPTS = (frameinfo->timestamp_sec%1000000)*1000 + frameinfo->timestamp_usec/1000;	
 
-		if(frameinfo->fps == 0) frameinfo->fps = 25;
-		tsTimeStampMSsec += 1000/frameinfo->fps;
-		unsigned long long llPts = tsTimeStampMSsec * 90;
-	
+		printf("Get %s Video \tLen:%d \ttm:%u.%u \t%u\n",frameinfo->type==EASY_SDK_VIDEO_FRAME_I?"I":"P", frameinfo->length, frameinfo->timestamp_sec, frameinfo->timestamp_usec, llPTS);
+
 		unsigned int uiFrameType = 0;
-		if (frameinfo->type == FRAMETYPE_I)
+		if (frameinfo->type == EASY_SDK_VIDEO_FRAME_I)
 		{
 			uiFrameType = TS_TYPE_PES_VIDEO_I_FRAME;
 		}
-		else if (frameinfo->type == FRAMETYPE_P)
+		else if (frameinfo->type == EASY_SDK_VIDEO_FRAME_P)
 		{
 			uiFrameType = TS_TYPE_PES_VIDEO_P_FRAME;
 		}
@@ -138,14 +136,21 @@ QTSS_Error EasyHLSSession::ProcessData(int _chid, int mediatype, char *pbuf, RTS
 			return QTSS_OutOfState;
 		}
 
-		EasyHLS_VideoMux(fHLSHandle, uiFrameType, (unsigned char*)pbuf, frameinfo->length, llPts, llPts, llPts);
+		EasyHLS_VideoMux(fHLSHandle, uiFrameType, (unsigned char*)pbuf, frameinfo->length, llPTS*90, llPTS*90, llPTS*90);
 	}
-	else if (mediatype == MEDIA_TYPE_AUDIO)
+	else if (mediatype == EASY_SDK_AUDIO_FRAME_FLAG)
 	{
-		//printf("Get Audio Len:%d tm:%d rtp:%d\n", frameinfo->length, frameinfo->timestamp_sec, frameinfo->rtptimestamp);
-		// 暂时不对音频进行处理
+
+		unsigned long long llPTS = (frameinfo->timestamp_sec%1000000)*1000 + frameinfo->timestamp_usec/1000;	
+
+		printf("Get Audio \tLen:%d \ttm:%u.%u \t%u\n", frameinfo->length, frameinfo->timestamp_sec, frameinfo->timestamp_usec, llPTS);
+
+		if (frameinfo->codec == EASY_SDK_AUDIO_CODEC_AAC)
+		{
+			EasyHLS_AudioMux(fHLSHandle, (unsigned char*)pbuf, frameinfo->length, llPTS*90, llPTS*90);
+		}
 	}
-	else if (mediatype == MEDIA_TYPE_EVENT)
+	else if (mediatype == EASY_SDK_EVENT_FRAME_FLAG)
 	{
 		if (NULL == pbuf && NULL == frameinfo)
 		{
@@ -172,8 +177,8 @@ QTSS_Error	EasyHLSSession::HLSSessionStart(char* rtspUrl)
 
 		if (NULL == fRTSPClientHandle) return QTSS_Unimplemented;
 
-		unsigned int mediaType = MEDIA_TYPE_VIDEO;
-		//mediaType |= MEDIA_TYPE_AUDIO;	//换为RTSPClient, 屏蔽声音
+		unsigned int mediaType = EASY_SDK_VIDEO_FRAME_FLAG;
+		//mediaType |= EASY_SDK_AUDIO_FRAME_FLAG;	//换为RTSPClient, 屏蔽声音
 
 		EasyRTSP_SetCallback(fRTSPClientHandle, __RTSPClientCallBack);
 		EasyRTSP_OpenStream(fRTSPClientHandle, 0, rtspUrl,RTP_OVER_TCP, mediaType, 0, 0, this, 1000, 0);

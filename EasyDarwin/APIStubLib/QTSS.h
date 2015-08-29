@@ -42,6 +42,7 @@ extern "C" {
 #define QTSS_MAX_ATTRIBUTE_NAME_SIZE    64
 #define QTSS_MAX_URL_LENGTH				512
 #define QTSS_MAX_FILE_NAME_LENGTH		128
+#define EASY_REQUEST_BUFFER_SIZE_LEN	512*1024
 
 
 //*******************************
@@ -270,7 +271,8 @@ enum
     qtss3GPPStreamObjectType        = FOUR_CHARS_TO_INT('3', 's', 't', 'r'), //3str
     qtss3GPPClientSessionObjectType = FOUR_CHARS_TO_INT('3', 's', 'e', 's'), //3ses
     qtss3GPPRTSPObjectType          = FOUR_CHARS_TO_INT('3', 'r', 't', 's'), //3rts
-    qtss3GPPRequestObjectType       = FOUR_CHARS_TO_INT('3', 'r', 'e', 'q')  //3req
+    qtss3GPPRequestObjectType       = FOUR_CHARS_TO_INT('3', 'r', 'e', 'q'), //3req
+	easyHTTPSessionObjectType		= FOUR_CHARS_TO_INT('e', 'h', 's', 'o')  //ehso
     
 };
 typedef UInt32 QTSS_ObjectType;
@@ -566,6 +568,33 @@ enum
 };
 typedef UInt32 QTSS_RTSPSessionAttributes;
 
+
+enum
+{
+    //Easy_HTTPSessionObject parameters
+    easyHTTPSesID					= 0,        //read      //UInt32        //This is a unique ID for each session since the server started up.
+    easyHTTPSesLocalAddr			= 1,        //read      //UInt32        //Local IP address for this HTTP connection
+    easyHTTPSesLocalAddrStr			= 2,        //read      //char array	//Ditto, in dotted-decimal format.
+    easyHTTPSesLocalDNS				= 3,        //read      //char array	//DNS name of local IP address for this RTSP connection.
+    easyHTTPSesRemoteAddr			= 4,        //read      //UInt32        //IP address of client.
+    easyHTTPSesRemoteAddrStr		= 5,        //read      //char array	//IP address addr of client, in dotted-decimal format.
+    easyHTTPSesEventCntxt			= 6,        //read      //QTSS_EventContextRef //An event context for the HTTP connection to the client. This should primarily be used to wait for EV_WR events if flow-controlled when responding to a client. 
+    easyHTTPSesLastUserName			= 7,		//read      //char array	// Private
+    easyHTTPSesLastUserPassword     = 8,		//read     //char array		// Private
+    easyHTTPSesLastURLRealm         = 9,		//read     //char array		// Private
+    
+    easyHTTPSesLocalPort			= 10,       //read      //UInt16        // This is the local port for the connection
+    easyHTTPSesRemotePort			= 11,       //read      //UInt16        // This is the client port for the connection
+    
+    easyHTTPSesLastToken			= 12,		//read      //char array	// Private
+
+	easyHTTPSesContentBody			= 13,		//read		//char array
+	easyHTTPSesContentBodyOffset	= 14,		//read		//UInt32
+
+    easyHTTPSesNumParams			= 15
+};
+typedef UInt32 Easy_HTTPSessionAttributes;
+
 //QTSS_3GPPRTSPSessionObject //class RTSPSession3GPP
 enum 
 {
@@ -832,7 +861,9 @@ enum
     qtssPrefs3GPPTargetTime  				= 88,   // "3gpp_target_time_milliseconds" //UInt32 // milliseconds set as the target time.
     qtssPrefsPlayersReqDisableThinning 		= 89,   // "player_requires_disable_thinning" //Char array //name of player to set the target time for
 	
-    qtssPrefsNumParams                      = 90
+	easyPrefsHTTPServicePort				= 90,	// "http_service_port"
+
+    qtssPrefsNumParams                      = 91
 };
 
 typedef UInt32 QTSS_PrefsAttributes;
@@ -1203,6 +1234,7 @@ typedef struct
 {
     char*                       inStreamName;
 	char*						inRTSPUrl;
+	char*						outHLSUrl;
 } Easy_HLSOpen_Params;
 
 typedef struct
@@ -2022,7 +2054,7 @@ void        QTSS_UnlockStdLib();
 
 // EasyHLSModule
 // Start HLS Session
-QTSS_Error	Easy_StartHLSSession(const char* inSessionName, const char* inURL);
+QTSS_Error	Easy_StartHLSSession(const char* inSessionName, const char* inURL, char* outURL);
 // Stop HLS Session
 QTSS_Error	Easy_StopHLSSession(const char* inSessionName);
 

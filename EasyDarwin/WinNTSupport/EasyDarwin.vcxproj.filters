@@ -2,36 +2,36 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{457558e6-8151-4f00-82f7-494fd6f1b365}</UniqueIdentifier>
+      <UniqueIdentifier>{eedfc6a8-148b-4c3f-a176-e8303ff49dc5}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
     </Filter>
     <Filter Include="Source Files\API Modules">
-      <UniqueIdentifier>{f2f58b20-41e5-424d-b15c-9d2d86a933ce}</UniqueIdentifier>
+      <UniqueIdentifier>{9e686913-04fc-4bb4-8835-65f2d1f6a6fb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\API Modules\QTSSReflectorModule">
-      <UniqueIdentifier>{0aef6866-73c1-4736-a038-27e48fac8ba0}</UniqueIdentifier>
+      <UniqueIdentifier>{8c889d98-20ca-4b8d-8307-714c72d05e68}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\API Modules\QTSSMP3StreamingModule">
-      <UniqueIdentifier>{d994f797-b3a5-4fd3-8368-e63466e5b8a4}</UniqueIdentifier>
+      <UniqueIdentifier>{a2973999-73dd-4b60-8e75-baa3ac111576}</UniqueIdentifier>
       <Extensions>.cpp</Extensions>
     </Filter>
     <Filter Include="Source Files\API Modules\QTSSAdminModule">
-      <UniqueIdentifier>{f4b73d75-62a2-4adc-9e31-0f2855145fdc}</UniqueIdentifier>
+      <UniqueIdentifier>{43352cef-5811-42c5-b91e-02ea3ef84be3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\API Modules\EasyHLSModule">
-      <UniqueIdentifier>{6fb4ebb8-52c2-41b0-adba-ef581da10191}</UniqueIdentifier>
+      <UniqueIdentifier>{ee05a044-0f38-4cce-9d69-56da9c202bdf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\API Modules\EasyRelayModule">
-      <UniqueIdentifier>{e4df3292-b759-4d0c-bc8e-d2a770fc1242}</UniqueIdentifier>
+      <UniqueIdentifier>{06312f7a-93ec-4f84-bbf6-4bdd8aca4031}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Core">
-      <UniqueIdentifier>{167a73d2-5989-4522-aef6-f101b97b32f5}</UniqueIdentifier>
+      <UniqueIdentifier>{5beebe4f-4563-4db9-b23e-54b2b8dbe473}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\RTSPClientLib">
-      <UniqueIdentifier>{119fa92d-5ae3-42a1-b0c9-288905211755}</UniqueIdentifier>
+      <UniqueIdentifier>{f12b6acd-8f4f-4aa8-82b9-c06b02b24bb8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\RTCP Utilities">
-      <UniqueIdentifier>{fd875900-1465-48dc-974a-3a3528414791}</UniqueIdentifier>
+      <UniqueIdentifier>{5b3e9721-ce70-44b4-9989-a6cc1250d794}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +150,12 @@
       <Filter>Source Files\API Modules\EasyRelayModule</Filter>
     </ClCompile>
     <ClCompile Include="..\Server.tproj\GenerateXMLPrefs.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Server.tproj\HTTPSession.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Server.tproj\HTTPSessionInterface.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\OSMemoryLib\OSMemory.cpp">
@@ -297,6 +303,12 @@
     </ClInclude>
     <ClInclude Include="..\APIModules\EasyRelayModule\EasyRelaySession.h">
       <Filter>Source Files\API Modules\EasyRelayModule</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Server.tproj\HTTPSession.h">
+      <Filter>Source Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Server.tproj\HTTPSessionInterface.h">
+      <Filter>Source Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
