@@ -34,7 +34,7 @@ using namespace std;
 #endif
 
 static StrPtrLen	sServiceStr("EasyDarwin");
-static StrPtrLen	sEasyHLSModule("EasyHLSModule");
+static StrPtrLen	sEasyHLSModule("api/easyhlsmodule");
 #define	QUERY_STREAM_NAME		"name"
 #define QUERY_STREAM_URL		"url"
 #define QUERY_STREAM_CMD		"cmd"
@@ -591,7 +591,16 @@ QTSS_Error HTTPSession::ExecNetMsgEasyHLSModuleReq(char* queryString, char* json
 		}
 	}while(0);
 
-	StrPtrLen msgJson(hlsURL);
+	//构造MSG_CLI_SMS_HLS_ACK响应报文
+	EasyDarwinEasyHLSAck ack;
+	ack.SetHeaderValue(EASYDARWIN_TAG_VERSION, "1.0");
+	
+	ack.SetStreamURL(hlsURL);
+
+	string msg = ack.GetMsg();
+
+	StrPtrLen msgJson((char*)msg.c_str());
+
 	//构造响应报文(HTTP头)
 	HTTPRequest httpAck(&sServiceStr);
 	httpAck.CreateResponseHeader(msgJson.Len?httpOK:httpNotImplemented);
@@ -672,8 +681,8 @@ QTSS_Error HTTPSession::ExecNetMsgEasyHLSModuleReq(char* queryString, char* json
 //	if(theDevRef)
 //		devMap->Release(theDevRef);
 //
-//	//构造MSG_NGX_CMS_NEED_STREAM_RSP请求直播消息响应报文
-//	EasyDarwin::Protocol::EasyProtocol rsp(MSG_NGX_CMS_NEED_STREAM_RSP);
+//	//构造MSG_NGX_CMS_NEED_STREAM_ACK请求直播消息响应报文
+//	EasyDarwin::Protocol::EasyProtocol rsp(MSG_NGX_CMS_NEED_STREAM_ACK);
 //	rsp.SetHeaderValue(EASYDARWIN_TAG_VERSION, EASYDARWIN_PROTOCOL_VERSION);
 //	rsp.SetHeaderValue(EASYDARWIN_TAG_ERROR_NUM, "200");//EASYDARWIN_ERROR_SUCCESS_OK
 //	rsp.SetHeaderValue(EASYDARWIN_TAG_ERROR_STRING, EasyProtocol::GetErrorString(EASYDARWIN_ERROR_SUCCESS_OK).c_str());
@@ -758,7 +767,7 @@ QTSS_Error HTTPSession::ExecNetMsgEasyHLSModuleReq(char* queryString, char* json
 //	if(devMap->GetNumRefsInTable() == 0 )
 //		return QTSS_NoErr;
 //
-//	EasyDarwinDeviceListRsp req;
+//	EasyDarwinDeviceListAck req;
 //	req.SetHeaderValue(EASYDARWIN_TAG_VERSION, "1.0");
 //	req.SetHeaderValue(EASYDARWIN_TAG_TERMINAL_TYPE, EasyProtocol::GetTerminalTypeString(EASYDARWIN_TERMINAL_TYPE_CAMERA).c_str());
 //	req.SetHeaderValue(EASYDARWIN_TAG_CSEQ, "1");	

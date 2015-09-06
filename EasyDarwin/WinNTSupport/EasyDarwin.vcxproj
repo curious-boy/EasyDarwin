@@ -682,6 +682,12 @@
       <Project>{4e4f758c-7cb5-471c-bd61-fb70bf69d48b}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\..\EasyProtocol\EasyProtocol\EasyProtocol.vcxproj">
+      <Project>{14f332e3-1771-4908-8850-9a2581a4aed2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\EasyProtocol\jsoncpp\makefiles\vs71\lib_json.vcxproj">
+      <Project>{b84f7231-16ce-41d8-8c08-7b523ff4225b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\SafeStdLib\SafeInternalStdLib.vcxproj">
       <Project>{230d5525-aea7-4037-95fe-3b45bef98e55}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
