@@ -103,7 +103,7 @@ QTSS_Error EasyRelaySession::ProcessData(int _chid, int mediatype, char *pbuf, R
 	if(NULL == fPusherHandle) return QTSS_Unimplemented;
 	if (mediatype == EASY_SDK_VIDEO_FRAME_FLAG)
 	{
-		printf("Get video Len:%d tm:%u.%u\n", frameinfo->length, frameinfo->timestamp_sec, frameinfo->timestamp_usec);
+		//printf("Get video Len:%d tm:%u.%u\n", frameinfo->length, frameinfo->timestamp_sec, frameinfo->timestamp_usec);
 
 		if(frameinfo && frameinfo->length)
 		{
